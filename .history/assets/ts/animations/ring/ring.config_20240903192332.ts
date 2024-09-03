@@ -36,7 +36,7 @@ export const UpLargeRingSettings: BreakpointSettings<RingSetting> = {
   [BREAKPOINTS.mobile]: {
     width: 100,
     height: 100,
-    top: 100,
+    top: 200,
     left: 120,
     duration: 64,
     lineWidth: 0.5,
