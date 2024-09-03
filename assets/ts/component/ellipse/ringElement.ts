@@ -10,8 +10,8 @@ export class RingElement extends HTMLElement {
   private height: number;
 
   /* 属性値の種類 */
-  static get obsedrvedAttributes() {
-    return ["line-width", "move-range", "number", "color"];
+  static get observedAttributes() {
+    return ["duration", "line-width", "number", "color"];
   }
 
   /* RingSvgとスタイルを適用して子要素にする */
@@ -19,7 +19,7 @@ export class RingElement extends HTMLElement {
   constructor() {
     super();
     this.ring = new Ring();
-    this.initRingSetting();
+    this.upRingSetting();
     const style = document.createElement("style");
     style.textContent = `
     :host {
@@ -36,7 +36,6 @@ export class RingElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.shadowRoot?.appendChild(this.ring.svg);
     this.shadowRoot?.appendChild(style);
-    this.ring.createRings();
   }
 
   connectedCallback() {}
@@ -47,17 +46,19 @@ export class RingElement extends HTMLElement {
     newValue: string | null
   ) {
     console.log(`Attribute changed: ${name} from ${oldValue} to ${newValue}`);
+    this.upRingSetting();
   }
 
-  private initRingSetting() {
+  private upRingSetting() {
+    const duration: number = this.getFloatAttribute("duration");
     const lineWidth: number = this.getFloatAttribute("line-width");
-    const moveRange: number = this.getFloatAttribute("move-range");
     const numberRing: number = this.getFloatAttribute("number");
     const color: Color = this.getColorAttribute("color");
+    this.ring.setDuration(duration);
     this.ring.setLineWidth(lineWidth);
-    this.ring.setMoveRange(moveRange);
     this.ring.setNumberRing(numberRing);
     this.ring.setColor(`rgba(${color.r},${color.g},${color.b},${color.a})`);
+    this.ring.updateRings();
   }
 
   /* 実数の属性をゲット */

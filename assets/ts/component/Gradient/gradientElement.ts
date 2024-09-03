@@ -1,8 +1,8 @@
-import { BackGradient } from "./BackGradient";
+import { Gradient } from "./Gradient";
 import { Color } from "../../util/color";
 
-export class BackGradientElement extends HTMLElement {
-  private backGradient: BackGradient;
+export class GradientElement extends HTMLElement {
+  private backGradient: Gradient;
 
   static get observedAttributes() {
     return ["color1", "color2"];
@@ -10,9 +10,8 @@ export class BackGradientElement extends HTMLElement {
 
   constructor() {
     super();
-    this.backGradient = new BackGradient();
-    this.initbackGradientSetting();
-    this.backGradient.createSVG();
+    this.backGradient = new Gradient();
+    this.updateGradientSetting();
     const style = document.createElement("style");
     style.textContent = `
         :host{
@@ -29,7 +28,7 @@ export class BackGradientElement extends HTMLElement {
     this.shadowRoot?.appendChild(this.backGradient.svg);
     this.shadowRoot?.appendChild(style);
   }
-  private initbackGradientSetting() {
+  private updateGradientSetting() {
     const color1: Color = this.getColorAttribute("color1");
     const color2: Color = this.getColorAttribute("color2");
     this.backGradient.setColor1(
@@ -38,6 +37,7 @@ export class BackGradientElement extends HTMLElement {
     this.backGradient.setColor2(
       `rgba(${color2.r},${color2.g},${color2.b},${color2.a})`
     );
+    this.backGradient.updateSVG();
   }
   connectedCallback() {}
   disconnectedCallback() {}
@@ -47,6 +47,7 @@ export class BackGradientElement extends HTMLElement {
     newValue: string | null
   ) {
     console.log(`Attribute changed: ${name} from ${oldValue} to ${newValue}`);
+    this.updateGradientSetting();
   }
   /* 色の属性をゲット */
   private getColorAttribute(value: string): Color {

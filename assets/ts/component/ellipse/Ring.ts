@@ -1,47 +1,28 @@
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 export class Ring {
   public readonly svg: SVGSVGElement;
-  private numberRing: number;
-  private moveRange: number;
-  private lineWidth: number;
-  private color: string;
+  private duration: number = 0;
+  private numberRing: number = 0;
+  private lineWidth: number = 0;
+  private color: string = "#fff";
   public radius = 50;
   constructor() {
     this.svg = document.createElementNS(SVG_NAMESPACE, "svg") as SVGSVGElement;
-    this.svg.setAttribute(
-      "viewBox",
-      `${-this.radius} ${-this.radius} ${this.radius * 2} ${this.radius * 2}`
-    );
   }
-
-  public createRings() {
-    for (let i = 0; i < this.numberRing; i++) {
-      const ratio = i / (this.numberRing * 2);
-      const g = this.createEllipse(
-        this.radius * 0.9,
-        this.radius,
-        1 - ratio,
-        ratio * 64,
-        ratio * 90
-      );
-      this.svg.appendChild(g);
-    }
-  }
-  private createEllipse(
+  private createRing(
     rx: number,
     ry: number,
     opacity: number,
     durationSec: number,
     rotation: number
   ): SVGGElement {
-    const r = 0;
     const g = document.createElementNS(SVG_NAMESPACE, "g") as SVGGElement;
     const ellipse = document.createElementNS(
       SVG_NAMESPACE,
       "ellipse"
     ) as SVGEllipseElement;
-    ellipse.setAttribute("cx", `${r}`);
-    ellipse.setAttribute("cy", `${r}`);
+    ellipse.setAttribute("cx", `${0}`);
+    ellipse.setAttribute("cy", `${0}`);
     ellipse.setAttribute("rx", `${rx}`);
     ellipse.setAttribute("ry", `${ry}`);
     ellipse.setAttribute("stroke-width", `${this.lineWidth}`);
@@ -55,8 +36,8 @@ export class Ring {
     ) as SVGAnimateTransformElement;
     animateTransform.setAttribute("attributeName", "transform");
     animateTransform.setAttribute("type", "rotate");
-    animateTransform.setAttribute("from", `${rotation} ${r} ${r}`);
-    animateTransform.setAttribute("to", `${rotation + 360} ${r} ${r}`);
+    animateTransform.setAttribute("from", `${rotation} ${0} ${0}`);
+    animateTransform.setAttribute("to", `${rotation + 360} ${0} ${0}`);
     animateTransform.setAttribute("dur", `${durationSec}`);
     animateTransform.setAttribute("repeatCount", "indefinite");
 
@@ -64,6 +45,70 @@ export class Ring {
     g.appendChild(ellipse);
 
     return g;
+  }
+
+  public updateRings() {
+    const halfBoxSize = this.radius + this.lineWidth;
+    this.svg.setAttribute(
+      "viewBox",
+      `${-halfBoxSize} ${-halfBoxSize} ${halfBoxSize * 2} ${halfBoxSize * 2}`
+    );
+    this.numberRingOptimize();
+    for (let i = 0; i < this.numberRing; i++) {
+      const g = this.svg.children[i] as SVGAElement;
+      if (!g) continue;
+      //楕円を変更
+      this.updateEllipses(g);
+      //アニメーションを変更
+      this.updateAnimateTransforms(g, this.numberRing, i);
+    }
+  }
+
+  private numberRingOptimize() {
+    console.log(this.numberRing);
+    while (this.svg.childElementCount > this.numberRing) {
+      this.svg.lastElementChild?.remove();
+    }
+    while (this.svg.childElementCount < this.numberRing) {
+      const index = this.svg.childElementCount;
+      const ratio = index / (this.numberRing * 2);
+      const r = this.radius * (1 - ratio * 0.25); //半径
+      const g = this.createRing(
+        /* rx = */ r * 0.88,
+        /* ry = */ r,
+        /* opacity = */ 1 - ratio,
+        /* durationSec = */ (1 - ratio) * this.duration,
+        /* rotation = */ (1 - ratio) * 90
+      );
+      this.svg.appendChild(g);
+    }
+  }
+
+  private updateEllipses(g: SVGGElement) {
+    const ellipse = g
+      .getElementsByTagNameNS(SVG_NAMESPACE, "ellipse")
+      .item(0)! as SVGEllipseElement;
+    if (ellipse) {
+      ellipse.setAttribute("stroke-width", `${this.lineWidth}`);
+      ellipse.setAttribute("stroke", this.color);
+    }
+  }
+
+  private updateAnimateTransforms(
+    g: SVGAElement,
+    numNodes: number,
+    index: number
+  ) {
+    const animateTransform = g
+      .getElementsByTagNameNS(SVG_NAMESPACE, "animateTransform")
+      .item(0)! as SVGAnimateTransformElement;
+    if (animateTransform) {
+      const ratio = index / (numNodes * 2);
+      const rotation = ratio * 90;
+      animateTransform.setAttribute("dur", `${this.duration * ratio}`);
+      animateTransform.setAttribute("from", `${rotation} ${0} ${0}`);
+      animateTransform.setAttribute("to", `${rotation + 360} ${0} ${0}`);
+    }
   }
 
   public setLineWidth(lineWidth: number) {
@@ -74,11 +119,10 @@ export class Ring {
     this.numberRing = numberRing;
   }
 
-  public setMoveRange(moveRange: number) {
-    this.moveRange = moveRange;
-  }
-
   public setColor(color: string) {
     this.color = color;
+  }
+  public setDuration(duration: number) {
+    this.duration = duration;
   }
 }

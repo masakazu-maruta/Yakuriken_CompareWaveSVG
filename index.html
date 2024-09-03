@@ -7,53 +7,49 @@
     <title>Wave Animation</title>
 </head>
 <style>
+    html, body {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+    }
     body {
         margin: 0;
     }
 
-    svg {
+    .mainVisual{
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        
+    }
+    .mainVisual__text{
         position: absolute;
-        top: 100px;
-        left: 100px;
-        width: 200px;
-        height: 200px;
+        left:4vw;
+        bottom : 20vw;
+        z-index: 20;
     }
-
-    custom-ring {
-        top: 100px;
-        left: 300px;
-        width: 200px;
-        height: 200px;
+    .mainVisual__frontWave{
+        z-index: 1;
     }
-
-    custom-back-gradient {
-        top: -50%;
-        left: -25%;
-        width: 200vh;
-        height: 200vh;
-        transform: rotate(-30deg);
-        z-index: -900;
+    custom-ring{
+        z-index: 10;
+    }
+    custom-gradient {
+        z-index: -10;
     }
 </style>
-
 <body>
-    <custom-wave x1="0" y1="870" x2="1900" y2="0" amplitude=100 frequency="2" shift="1000" speed="1" line-width="2"
-        color="70,200,200,0.8">
-    </custom-wave>
-    <custom-wave x1="1900" y1="870" x2="0" y2="0" amplitude=100 frequency="2" shift="1000" speed="1" line-width="2"
-        color="255,0,0,0.8">
-    </custom-wave>
-    <custom-wave x1="0" y1="25" x2="800" y2="25" amplitude=50 frequency="2" shift="1000" speed="1" line-width="2"
-        color="0,0,255,0.8">
-    </custom-wave>
-
-    <custom-wind x1="900" y1="870" x2="900" y2="0" amplitude=150 frequency="2" shift="1000" line-width="2"
-        main-color="0,0,0,0.8" fade-color="255,0,0,0">
-    </custom-wind>
-    <custom-ring line-width="0.2" move-range="8" number="4" color="60,200,200,0.8"></custom-ring>
-    <custom-back-gradient color1="230,0,120,0.25" color2="230,200,240,0.25"></custom-back-gradient>
+    <div class="mainVisual">
+        <custom-wave class = "mainVisual__frontWave" id="js-mainVisual__frontWave" color="78,193,207,0.8"></custom-wave>
+        <custom-wave id="js-mainVisual__backWave" color="78,193,207,0.6"></custom-wave>
+        <custom-wind id="js-mainVisual__wind" main-color="255,255,255,0.3" fade-color="255,255,255,0"></custom-wind>
+        <custom-ring id="js-mainVisual__largeRing" color="255,255,255,1"></custom-ring>
+        <custom-ring id="js-mainVisual__mediumRing" color="255,255,255,1"></custom-ring>
+        <custom-ring id="js-mainVisual__smallRing" color="255,255,255,1"></custom-ring>
+        <custom-gradient id="js-mainVisual__backGradient" color1="148,244,146,0.5" color2="152,240,247,0.5"></custom-gradient>
+        <img class = "mainVisual__text" src ="assets/svg/Zen Old 1.svg">
+    </div>
     <script src="dist/main.js"></script>
 </body>
-f
 
 </html>

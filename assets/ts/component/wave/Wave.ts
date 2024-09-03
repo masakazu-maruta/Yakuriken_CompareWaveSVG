@@ -1,12 +1,11 @@
 export class Wave {
   public readonly svg: SVGSVGElement;
-  private lineWidth: number = 0;
-  private frequency: number = 0;
+  private lineWidth: number = 1;
+  private frequency: number = 1;
   private shift: number = 0;
-  private speed: number = 0;
-  private color: string = "";
+  private speed: number = 1;
+  private color: string = "#fff";
   private currentTime: number = 0;
-  private createTime: number;
   private pathElement: SVGPathElement;
 
   constructor() {
@@ -18,8 +17,6 @@ export class Wave {
       "path"
     );
     this.svg.appendChild(this.pathElement);
-
-    this.createTime = Date.now();
     this.startAnimation();
   }
 
@@ -57,8 +54,7 @@ export class Wave {
   /* 波の高さを返す関数　時間の情報を使って波をずらす */
   public getYByX(x: number): number {
     const phase = this.frequency * Math.PI * 2 * (x / this.svg.clientWidth);
-    const speedEffect =
-      (-this.speed * (this.currentTime - this.createTime)) / 1000;
+    const speedEffect = (-this.speed * this.currentTime) / 1000;
     const theta = phase + speedEffect + this.shift;
     const centerOffset = this.svg.clientHeight / 2;
     return this.getAmplitude() * Math.sin(theta) + centerOffset;
@@ -66,7 +62,7 @@ export class Wave {
 
   /* 波の線の真ん中をTransformOriginとするので、高さの半分から線の太さの半分を引く */
   public getAmplitude(): number {
-    return this.svg.clientHeight / 2 - this.lineWidth / 2;
+    return this.svg.clientHeight / 2 - this.lineWidth / 2 - 1;
   }
 
   /* 周波数をセット　画面に現れる周期の数 */

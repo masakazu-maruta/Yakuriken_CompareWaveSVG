@@ -3,11 +3,12 @@ export class Wind {
   private lineWidth: number = 0;
   private frequency: number = 0;
   private shift: number = 0;
-  private mainColor: string = "";
-  private fadeColor: string = "";
+  private mainColor: string = "#fff";
+  private fadeColor: string = "#fff";
   private currentTime: number = 0;
   private createTime: number;
   private pathElement: SVGPathElement;
+  private gradient: SVGLinearGradientElement | null = null;
 
   constructor() {
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -21,52 +22,76 @@ export class Wind {
     this.svg.appendChild(this.pathElement);
 
     this.createTime = Date.now();
+    this.setupGradient(); // グラデーションを一度だけセットアップ
     this.startAnimation();
   }
 
   /* 風を描画 */
   drawWind() {
+    // グラデーションの位置と色を更新
+    if (this.gradient) {
+      this.updateGradient();
+    }
     this.pathElement.setAttribute("stroke-width", `${this.lineWidth}`);
     this.pathElement.setAttribute("d", this.generatePathData());
-    this.pathElement.setAttribute("stroke", this.coloring());
+    this.pathElement.setAttribute("stroke", "url(#gradient)");
     this.pathElement.setAttribute("fill", "none");
   }
-
-  /* 色を付ける関数 */
-  public coloring(): string {
-    const destination = this.svg.clientWidth;
-    const time_s = (Date.now() - this.createTime) / 1000;
-    const ratio =
-      (((destination * time_s) / 8) % (destination * 1.3)) / destination;
-    return `url(#gradient)`;
-  }
-
   private generatePathData(): string {
     const pathData: string[] = [];
-    const width = this.svg.clientWidth;
-    const step = 1;
+    // 初期位置を設定
     pathData.push(`M 0 ${this.getYByX(0)}`);
-
-    for (let x = step; x < width; x += step) {
+    const width = this.svg.clientWidth;
+    // 波のパスを生成
+    for (let x = 1; x < width; x++) {
       const y = this.getYByX(x);
       pathData.push(`L ${x} ${y}`);
     }
 
+    // パスデータを文字列として返す
     return pathData.join(" ");
   }
 
+  /* グラデーションの位置と色を更新 */
+  private updateGradient() {
+    const destination = this.svg.clientWidth;
+    const time_s = this.currentTime / 1000;
+    const lengthRatio = 0.5;
+    const locationRatio =
+      (((destination * time_s) / 8) % (destination * (1 + lengthRatio))) /
+      destination;
+    this.coloring(locationRatio, lengthRatio);
+  }
+
+  private coloring(locationRatio: number, lengthRatio: number) {
+    if (!this.gradient) return;
+    const stops = this.gradient.querySelectorAll("stop");
+    if (stops.length >= 3) {
+      const locationFade1 = (locationRatio - lengthRatio) * 100;
+      (stops[0] as SVGStopElement).setAttribute("offset", `${locationFade1}%`);
+      (stops[0] as SVGStopElement).setAttribute("stop-color", this.fadeColor);
+      const locationMain = (locationRatio - lengthRatio / 2) * 100;
+      (stops[1] as SVGStopElement).setAttribute("offset", `${locationMain}%`);
+      (stops[1] as SVGStopElement).setAttribute("stop-color", this.mainColor);
+      const locationFade2 = locationRatio * 100;
+      (stops[2] as SVGStopElement).setAttribute("offset", `${locationFade2}%`);
+      (stops[2] as SVGStopElement).setAttribute("stop-color", this.fadeColor);
+    }
+  }
   /* SVGグラデーションの設定 */
   private setupGradient() {
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    const gradient = document.createElementNS(
+    this.gradient = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "linearGradient"
     );
-    gradient.setAttribute("id", "gradient");
-    gradient.setAttribute("x1", "0%");
-    gradient.setAttribute("y1", "0%");
-    gradient.setAttribute("x2", "100%");
-    gradient.setAttribute("y2", "0%");
+    if (!this.gradient) return;
+
+    this.gradient.setAttribute("id", "gradient");
+    this.gradient.setAttribute("x1", "0%");
+    this.gradient.setAttribute("y1", "0%");
+    this.gradient.setAttribute("x2", "100%");
+    this.gradient.setAttribute("y2", "0%");
 
     const stop1 = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -74,31 +99,30 @@ export class Wind {
     );
     stop1.setAttribute("offset", "0%");
     stop1.setAttribute("stop-color", this.fadeColor);
-    gradient.appendChild(stop1);
+    this.gradient.appendChild(stop1);
 
     const stop2 = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "stop"
     );
-    stop2.setAttribute("offset", "50%");
+    stop2.setAttribute("offset", "0%");
     stop2.setAttribute("stop-color", this.mainColor);
-    gradient.appendChild(stop2);
+    this.gradient.appendChild(stop2);
 
     const stop3 = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "stop"
     );
-    stop3.setAttribute("offset", "100%");
+    stop3.setAttribute("offset", "0%");
     stop3.setAttribute("stop-color", this.fadeColor);
-    gradient.appendChild(stop3);
+    this.gradient.appendChild(stop3);
 
-    defs.appendChild(gradient);
+    defs.appendChild(this.gradient);
     this.svg.appendChild(defs);
   }
 
   /* idを利用してアニメーションを管理、currentTimeを使う */
   private startAnimation() {
-    this.setupGradient();
     const animate = (currentTime: number) => {
       this.currentTime = currentTime;
       this.drawWind();

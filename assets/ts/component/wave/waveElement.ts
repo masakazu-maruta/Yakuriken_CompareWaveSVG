@@ -30,6 +30,7 @@ export class WaveElement extends HTMLElement {
   constructor() {
     super();
     this.wave = new Wave();
+    this.updateWaveSetting();
     const style = document.createElement("style");
     style.textContent = `
     :host {
@@ -45,7 +46,6 @@ export class WaveElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.shadowRoot?.appendChild(this.wave.svg);
     this.shadowRoot?.appendChild(style);
-    this.updateWaveSetting();
   }
 
   connectedCallback() {
