@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Animation</title>
+</head>
+<style>
+    html, body {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+    }
+    body {
+        margin: 0;
+    }
+
+    .mainVisual{
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        
+    }
+    .mainVisual__text{
+        position: absolute;
+        left:4vw;
+        bottom : 20vw;
+        z-index: 20;
+    }
+    .mainVisual__frontWave{
+        z-index: 1;
+    }
+    custom-ring{
+        z-index: 10;
+    }
+    custom-gradient {
+        z-index: -10;
+    }
+</style>
+<body>
+    <div class="mainVisual">
+        <custom-wave class = "mainVisual__frontWave" id="js-mainVisual__frontWave" color="78,193,207,0.8"></custom-wave>
+        <custom-wave id="js-mainVisual__backWave" color="78,193,207,0.6"></custom-wave>
+        <custom-wind id="js-mainVisual__wind" main-color="255,255,255,0.3" fade-color="255,255,255,0"></custom-wind>
+        <custom-ring id="js-mainVisual__largeRing" color="255,255,255,1"></custom-ring>
+        <custom-ring id="js-mainVisual__mediumRing" color="255,255,255,1"></custom-ring>
+        <custom-ring id="js-mainVisual__smallRing" color="255,255,255,1"></custom-ring>
+        <custom-gradient id="js-mainVisual__backGradient" color1="148,244,146,0.5" color2="152,240,247,0.5"></custom-gradient>
+        <img class = "mainVisual__text" src ="assets/svg/Zen Old 1.svg">
+    </div>
+    <script src="dist/main.js"></script>
+</body>
+
+</html>
